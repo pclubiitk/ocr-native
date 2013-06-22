@@ -7,6 +7,10 @@ import java.io.File;
 import java.io.PrintStream;
 import java.lang.Object;
 import java.lang.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.lang.reflect.Field;
@@ -23,13 +27,14 @@ public class GetVector {
 	private static BufferedImage binarized_image;     
 	private static int database_size=52;
 	private static int name=1;  
+	private static Map<String, Integer> dictionary = new HashMap<String, Integer>();
 	private static PrintStream original = new PrintStream(System.out);                                       
 	private static int[][][] database = new int[database_size][15][15];
 	private static String[] Colors = new String[database_size];
 	private static String[] characters = new String[database_size];
 	public static void main(String[] args) throws IOException {
 		ReadDatabase(database,characters,Colors);
-	
+		dictionary_reader();
 		String FileName = args[0];
 		File FilePointer = new File(FileName);                                     
 		binarized_image = ImageIO.read(FilePointer);
@@ -37,6 +42,25 @@ public class GetVector {
 		GetAllCharacter();     
 		 
 		                                            
+	}
+	public static  void dictionary_reader()
+	{
+		String str;			
+   Scanner scan;
+   File file = new File("dictionary.txt");
+   try {
+        scan = new Scanner(file);
+	while(scan.hasNext())
+		{
+   			str = scan.nextLine();
+  			dictionary.put(str, 1);
+		}
+	}
+   catch (FileNotFoundException e1) {
+            
+          	e1.printStackTrace();
+          	
+    }
 	}
 	public static int ReadDatabase(int[][][] value,String[] c,String[] col)
 	{
@@ -95,13 +119,23 @@ public class GetVector {
 				}
 				//MaxIndex=(MaxIndex+i)/2;
 				
-				GetOneLine(binarized_image,Text[LineNo],MaxIndex,Visited);
+				Text[LineNo]=GetOneLine(binarized_image,Text[LineNo],MaxIndex,Visited);
 				LineNo++;
 			}
 		}
+		for(int i=0; i<LineNo; i++)
+		{
+			String current_line=Text[i];
+			String[] parts=current_line.split(" ");
+			for(int j=0; j<parts.length; j++)
+			{
+				original.print(SpellingCorrector.getCorrect(parts[j].toLowerCase(),dictionary)+" ");
+			}
+			original.println();
+		}
 		return 0;
 	}
-	public static int GetOneLine(BufferedImage Image,String CurrentLine,int Index,int[][] Visited)
+	public static String GetOneLine(BufferedImage Image,String CurrentLine,int Index,int[][] Visited)
 	{
 		
 		
@@ -170,9 +204,9 @@ public class GetVector {
 				}
 				index++;
 		}
-		original.println(CurrentLine);
+		//original.println(CurrentLine);
+		return CurrentLine;
 		
-		return 0;
 	}
 	
 	public static int GetPureSubImage(BufferedImage image,int Row,int Column,int[][] Coordinates)

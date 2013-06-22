@@ -1,0 +1,174 @@
+import java.util.Scanner;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.PrintStream;
+import java.lang.Object;
+import java.lang.*;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.List;
+import java.lang.Math;
+import java.text.DecimalFormat;
+import java.io.FileNotFoundException;
+import java.lang.Double;
+import java.io.FileOutputStream;
+import java.lang.String;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+public class ImageLib {
+	private static int IMG_WIDTH = 15;
+	private static int IMG_HEIGHT = 15;
+
+public static int FrequencyOfBlack(BufferedImage image,int[] Black)
+	{
+		int Height=image.getHeight();
+		int Width=image.getWidth();
+		for(int i=0; i<Height; i++)
+		{
+			Black[i]=0;
+			for(int j=0; j<Width; j++)
+			{
+				int Pixel= image.getRGB(j,i);
+				int Red= new Color(Pixel).getRed();
+				if(Red==0)	
+					Black[i]+=1;
+			}
+		}
+		return 1;
+	}
+
+public static int GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visited,int Row,int Column,int Error)
+	{
+	
+		if(Error==1)
+			return 1;
+		try {
+		if(Row<0||Row>=Image.getHeight())
+			return Error;
+		if(Column<0||Column>=Image.getWidth())
+			return Error;
+		int Pixel=Image.getRGB(Column,Row);
+		int Red=new Color(Pixel).getRed();
+		if(Red==255 || Visited[Row][Column]==1)
+		{
+			return Error;
+		}
+		else
+		{
+			Visited[Row][Column]=1;
+			if(Row<Coordinates[1][0])
+				Coordinates[1][0]=Row;
+			if(Row>Coordinates[1][1])
+				Coordinates[1][1]=Row;
+			if(Column<Coordinates[0][0])
+				Coordinates[0][0]=Column;
+			if(Column>Coordinates[0][1])
+				Coordinates[0][1]=Column;
+			try {
+			Error=GetFrame(Image,Coordinates,Visited,Row+1,Column+1,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row,Column+1,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row-1,Column+1,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row+1,Column,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row-1,Column,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row+1,Column-1,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row,Column-1,Error);
+			Error=GetFrame(Image,Coordinates,Visited,Row-1,Column-1,Error);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				
+				Error=1;
+				
+			}
+		}
+		}
+		catch (Exception e)
+		{
+			Error=1;
+			
+		}
+		return Error;
+	}
+
+	public static BufferedImage resize(BufferedImage originalImage) {
+	
+			int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+			BufferedImage resizeImage = resizeImage(originalImage, type);
+			return resizeImage;
+		
+
+	}
+
+	private static BufferedImage resizeImage(BufferedImage originalImage, int type){
+		BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, type);
+		Graphics2D g = resizedImage.createGraphics();
+		g.drawImage(originalImage, 0, 0, IMG_WIDTH, IMG_HEIGHT, null);
+		g.dispose();
+
+		return resizedImage;
+	}
+
+	private static BufferedImage resizeImageWithHint(BufferedImage originalImage, int type){
+
+		BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, type);
+		Graphics2D g = resizedImage.createGraphics();
+		g.drawImage(originalImage, 0, 0, IMG_WIDTH, IMG_HEIGHT, null);
+		g.dispose();
+		g.setComposite(AlphaComposite.Src);
+
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
+		return resizedImage;
+	}
+	
+	public static int colorToRGB(int alpha, int red, int green, int blue) {
+
+		int newPixel = 0;
+		newPixel += alpha;
+		newPixel = newPixel << 8;
+		newPixel += red; newPixel = newPixel << 8;
+		newPixel += green; newPixel = newPixel << 8;
+		newPixel += blue;
+
+		return newPixel;
+
+	}
+	public static int RemoveExtra(BufferedImage image,int[][] Visited,int Row,int Column)
+	{
+		if(Row<0||Row>=image.getHeight())
+			return 0;
+		if(Column<0||Column>=image.getWidth())
+			return 0;
+		int Pixel=image.getRGB(Column,Row);
+		int Red=new Color(Pixel).getRed();
+		if(Red==255 || Visited[Row][Column]==1)
+		{
+			return 0;
+		}
+		else
+		{
+			Visited[Row][Column]=1;
+			RemoveExtra(image,Visited,Row+1,Column+1);
+			RemoveExtra(image,Visited,Row,Column+1);
+			RemoveExtra(image,Visited,Row-1,Column+1);
+			RemoveExtra(image,Visited,Row+1,Column);
+			RemoveExtra(image,Visited,Row-1,Column);
+			RemoveExtra(image,Visited,Row+1,Column-1);
+			RemoveExtra(image,Visited,Row,Column-1);
+			RemoveExtra(image,Visited,Row-1,Column-1);
+		}
+		return 0;
+	}
+
+	
+}

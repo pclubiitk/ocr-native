@@ -1,4 +1,4 @@
-<Text Extracted From check2.jpg>
+#Text Extracted From check2.jpg
 
 
 The Ieaders of Mecca couId not agree on whIch

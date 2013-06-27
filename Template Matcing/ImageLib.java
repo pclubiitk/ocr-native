@@ -24,7 +24,7 @@ public class ImageLib {
 	private static int IMG_WIDTH = 15;
 	private static int IMG_HEIGHT = 15;
 
-public static int FrequencyOfBlack(BufferedImage image,int[] Black)
+	public static int FrequencyOfBlack(BufferedImage image,int[] Black)
 	{
 		int Height=image.getHeight();
 		int Width=image.getWidth();
@@ -42,21 +42,18 @@ public static int FrequencyOfBlack(BufferedImage image,int[] Black)
 		return 1;
 	}
 
-public static int GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visited,int Row,int Column,int Error)
+	public static void GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visited,int Row,int Column)
 	{
-	
-		if(Error==1)
-			return 1;
-		try {
+
 		if(Row<0||Row>=Image.getHeight())
-			return Error;
+			return;
 		if(Column<0||Column>=Image.getWidth())
-			return Error;
+			return;
 		int Pixel=Image.getRGB(Column,Row);
 		int Red=new Color(Pixel).getRed();
 		if(Red==255 || Visited[Row][Column]==1)
 		{
-			return Error;
+			return;
 		}
 		else
 		{
@@ -69,38 +66,23 @@ public static int GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visit
 				Coordinates[0][0]=Column;
 			if(Column>Coordinates[0][1])
 				Coordinates[0][1]=Column;
-			try {
-			Error=GetFrame(Image,Coordinates,Visited,Row+1,Column+1,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row,Column+1,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row-1,Column+1,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row+1,Column,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row-1,Column,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row+1,Column-1,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row,Column-1,Error);
-			Error=GetFrame(Image,Coordinates,Visited,Row-1,Column-1,Error);
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-				
-				Error=1;
-				
-			}
+			GetFrame(Image,Coordinates,Visited,Row+1,Column+1);
+			GetFrame(Image,Coordinates,Visited,Row,Column+1);
+			GetFrame(Image,Coordinates,Visited,Row-1,Column+1);
+			GetFrame(Image,Coordinates,Visited,Row+1,Column);
+			GetFrame(Image,Coordinates,Visited,Row-1,Column);
+			GetFrame(Image,Coordinates,Visited,Row+1,Column-1);
+			GetFrame(Image,Coordinates,Visited,Row,Column-1);
+			GetFrame(Image,Coordinates,Visited,Row-1,Column-1);
 		}
-		}
-		catch (Exception e)
-		{
-			Error=1;
-			
-		}
-		return Error;
 	}
 
 	public static BufferedImage resize(BufferedImage originalImage) {
-	
-			int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
-			BufferedImage resizeImage = resizeImage(originalImage, type);
-			return resizeImage;
-		
+
+		int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+		BufferedImage resizeImage = resizeImage(originalImage, type);
+		return resizeImage;
+
 
 	}
 
@@ -130,7 +112,7 @@ public static int GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visit
 
 		return resizedImage;
 	}
-	
+
 	public static int colorToRGB(int alpha, int red, int green, int blue) {
 
 		int newPixel = 0;
@@ -170,5 +152,5 @@ public static int GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visit
 		return 0;
 	}
 
-	
+
 }

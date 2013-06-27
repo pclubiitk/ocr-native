@@ -14,10 +14,7 @@ public class SpellingCorrector {
   
  public static String getCorrect(String input,Map<String, Integer> dictionary) {
 
-   		
-   
-  //String input = "impoetant";
-  //String correct = correct(input,dictionary);
+  String correct = correct(input,dictionary);
   //System.out.println(correct); 
   return correct;	
  }

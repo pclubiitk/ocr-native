@@ -19,7 +19,7 @@ public class SpellingCorrector {
   //String input = "impoetant";
   //String correct = correct(input,dictionary);
   //System.out.println(correct); 
-  return input;	
+  return correct;	
  }
   
   

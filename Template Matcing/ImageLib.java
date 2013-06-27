@@ -52,9 +52,7 @@ public class ImageLib {
 		int Pixel=Image.getRGB(Column,Row);
 		int Red=new Color(Pixel).getRed();
 		if(Red==255 || Visited[Row][Column]==1)
-		{
 			return;
-		}
 		else
 		{
 			Visited[Row][Column]=1;

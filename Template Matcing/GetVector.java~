@@ -25,7 +25,7 @@ import java.io.FileOutputStream;
 import java.lang.String;
 public class GetVector {
 	private static BufferedImage binarized_image;     
-	private static int database_size=61;
+	private static int database_size=63;
 	private static String database_file = "database.txt";
 	private static String special_database_file = "special_database.txt";	
 	private static int special_database_size=4;	
@@ -45,6 +45,12 @@ public class GetVector {
 		ReadDatabase(database,characters,database_file);
 		
 		ReadDatabase(special_database,special_characters,special_database_file);
+
+		//test
+
+		for(int i=0 ; i<special_database_size; i++)
+			//System.out.println(special_characters[i]);
+//
 
 		dictionary_reader();
 		String FileName = args[0];
@@ -144,10 +150,10 @@ public class GetVector {
 				high=i-1;
 				//MaxIndex=(MaxIndex+i)/2;
 
-				Text[LineNo]=GetOneLine(binarized_image,MaxIndex,Visited,upper_limit);
+				Text[LineNo]=GetOneLine(MaxIndex,Visited,upper_limit);
 				original.println(Text[LineNo]);	
 				String special_char="";
-				special_char=GetOneLine_sp(binarized_image,low,high,Visited);
+				special_char=GetOneLine_sp(low,high,Visited);
 				original.println(special_char);
 				LineNo++;
 			}
@@ -164,7 +170,7 @@ public class GetVector {
 		}
 		return 0;
 	}
-	public static int find_height(BufferedImage Image,int[][] Coordinates,int high)
+	public static int find_height(int[][] Coordinates,int high,int[][] Visited)
 	{
 		int min=high;
 		for(int i=Coordinates[0][0];i<=Coordinates[0][1];i++)
@@ -172,8 +178,12 @@ public class GetVector {
 			int j;
 			for(j=high;j<Coordinates[1][0];j++)
 			{
-				if(new Color(Image.getRGB(i, j)).getRed() == 0)
+				if(new Color(binarized_image.getRGB(i, j)).getRed() == 0)
+				{
+					int[][] trash=new int[2][2];
+					ImageLib.GetFrame(binarized_image,trash,Visited,i,j);
 					break;
+				}
 			}
 			if(j > min)
 				min=j;
@@ -205,12 +215,12 @@ public class GetVector {
 
 		return character_image;
 	}
-	public static String GetOneLine(BufferedImage Image,int Index,int[][] Visited,int upper_limit)
+	public static String GetOneLine(int Index,int[][] Visited,int upper_limit)
 	{
 
 		String current_line="";
-		int Height=Image.getHeight();
-		int Width =Image.getWidth();		
+		int Height=binarized_image.getHeight();
+		int Width =binarized_image.getWidth();		
 		int[][] coordinates=new int[2][2];
 
 		for(int j=0; j<Width; j++)
@@ -223,9 +233,9 @@ public class GetVector {
 
 				coordinates[0][0]=10000000;coordinates[0][1]=-10000000;
 				coordinates[1][0]=10000000;coordinates[1][1]=-10000000;
-				int Error=ImageLib.GetFrame(Image,coordinates,Visited,Index,j,0);
+				ImageLib.GetFrame(binarized_image,coordinates,Visited,Index,j);
 
-				int extra_height=find_height(Image,coordinates,upper_limit);
+				int extra_height=find_height(coordinates,upper_limit,Visited);
 
 
 				BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
@@ -246,11 +256,11 @@ public class GetVector {
 		}
 		return current_line;
 	}
-	public static String GetOneLine_sp(BufferedImage Image,int low,int high,int[][] Visited)
+	public static String GetOneLine_sp(int low,int high,int[][] Visited)
 	{
 		String current_line="";
-		int Height=Image.getHeight();
-		int Width =Image.getWidth();		
+		int Height=binarized_image.getHeight();
+		int Width =binarized_image.getWidth();		
 		int[][] coordinates=new int[2][2];
 		for(int i=low; i<=high; i++) {
 		for(int j=0; j<Width; j++) {
@@ -262,8 +272,8 @@ public class GetVector {
 
 				coordinates[0][0]=10000000;coordinates[0][1]=-10000000;
 				coordinates[1][0]=10000000;coordinates[1][1]=-10000000;
-				int Error=ImageLib.GetFrame(Image,coordinates,Visited,i,j,0);
-				
+				ImageLib.GetFrame(binarized_image,coordinates,Visited,i,j);
+					
 				BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
 						coordinates[1][0]+1, binarized_image.getType());
 

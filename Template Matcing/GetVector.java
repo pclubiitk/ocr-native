@@ -116,8 +116,8 @@ public class GetVector {
 
 		String[] Text=new String[100];
 		String[] special_text=new String[100];
-		int[][][] Text_coordinates = new int[100][2][2];
-		int[][][] special_Text_coordinates = new int[100][2][2];
+		int[][][] text_coordinates = new int[100][2][2];
+		int[][][] special_text_coordinates = new int[100][2][2];
 
 		int[] BlackFreq=new int[Height];
 		int[][] Visited= new int[Height][Width];
@@ -150,11 +150,13 @@ public class GetVector {
 				high=i-1;
 				//MaxIndex=(MaxIndex+i)/2;
 
-				Text[LineNo]=GetOneLine(binarized_image,MaxIndex,Visited,upper_limit);
-				original.println(Text[LineNo]);	
+				Text[LineNo]=GetOneLine(MaxIndex,Visited,upper_limit,text_coordinates);
+			//	original.println(Text[LineNo]);	
 				String special_char="";
-				special_char=GetOneLine_sp(binarized_image,low,high,Visited);
-				original.println(special_char);
+				special_char=GetOneLine_sp(low,high,Visited,special_text_coordinates);
+				Text[LineNo]=merge.combine(Text[LineNo],special_char,text_coordinates,special_text_coordinates,original);
+			//	original.println(Text[LineNo]);
+				//	original.println(special_char);
 				LineNo++;
 			}
 		}
@@ -170,22 +172,22 @@ public class GetVector {
 		}
 		return 0;
 	}
-	public static int find_height(BufferedImage Image,int[][] Coordinates,int high,int[][] Visited)
+	public static int find_height(int[][] Coordinates,int high,int[][] Visited)
 	{
-		int min=high;
+		int min=Coordinates[1][0];
 		for(int i=Coordinates[0][0];i<=Coordinates[0][1];i++)
 		{
 			int j;
 			for(j=high;j<Coordinates[1][0];j++)
 			{
-				if(new Color(Image.getRGB(i, j)).getRed() == 0)
+				if(new Color(binarized_image.getRGB(i, j)).getRed() == 0&& Visited[j][i]==0)
 				{
 					int[][] trash=new int[2][2];
-					ImageLib.GetFrame(Image,trash,Visited,i,j);
+					ImageLib.GetFrame(binarized_image,trash,Visited,j,i);
 					break;
 				}
 			}
-			if(j > min)
+			if(j < min)
 				min=j;
 		}
 		return Coordinates[1][0]-min;
@@ -215,14 +217,14 @@ public class GetVector {
 
 		return character_image;
 	}
-	public static String GetOneLine(BufferedImage Image,int Index,int[][] Visited,int upper_limit)
+	public static String GetOneLine(int Index,int[][] Visited,int upper_limit,int[][][] text_coordinates)
 	{
 
 		String current_line="";
-		int Height=Image.getHeight();
-		int Width =Image.getWidth();		
+		int Height=binarized_image.getHeight();
+		int Width =binarized_image.getWidth();		
 		int[][] coordinates=new int[2][2];
-
+		int count=0;
 		for(int j=0; j<Width; j++)
 		{
 			int Pixel=binarized_image.getRGB(j,Index);
@@ -233,9 +235,11 @@ public class GetVector {
 
 				coordinates[0][0]=10000000;coordinates[0][1]=-10000000;
 				coordinates[1][0]=10000000;coordinates[1][1]=-10000000;
-				ImageLib.GetFrame(Image,coordinates,Visited,Index,j);
-
-				int extra_height=find_height(Image,coordinates,upper_limit,Visited);
+				ImageLib.GetFrame(binarized_image,coordinates,Visited,Index,j);
+				text_coordinates[count][0][0]=coordinates[0][0];text_coordinates[count][0][1]=coordinates[0][1];
+				text_coordinates[count][1][0]=coordinates[1][0];text_coordinates[count][1][1]=coordinates[1][1];
+				count++;
+				int extra_height=find_height(coordinates,upper_limit,Visited);
 
 
 				BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
@@ -256,12 +260,13 @@ public class GetVector {
 		}
 		return current_line;
 	}
-	public static String GetOneLine_sp(BufferedImage Image,int low,int high,int[][] Visited)
+	public static String GetOneLine_sp(int low,int high,int[][] Visited,int[][][] text_coordinates)
 	{
 		String current_line="";
-		int Height=Image.getHeight();
-		int Width =Image.getWidth();		
+		int Height=binarized_image.getHeight();
+		int Width =binarized_image.getWidth();		
 		int[][] coordinates=new int[2][2];
+		int count=0;
 		for(int i=low; i<=high; i++) {
 		for(int j=0; j<Width; j++) {
 			int Pixel=binarized_image.getRGB(j,i);
@@ -272,11 +277,15 @@ public class GetVector {
 
 				coordinates[0][0]=10000000;coordinates[0][1]=-10000000;
 				coordinates[1][0]=10000000;coordinates[1][1]=-10000000;
-				ImageLib.GetFrame(Image,coordinates,Visited,i,j);
+				ImageLib.GetFrame(binarized_image,coordinates,Visited,i,j);
+				//original.println((coordinates[0][0]-coordinates[0][1])+"  "+(coordinates[1][0]-coordinates[1][1])+"  ");		
 				
+				text_coordinates[count][0][0]=coordinates[0][0];text_coordinates[count][0][1]=coordinates[0][1];
+                                text_coordinates[count][1][0]=coordinates[1][0];text_coordinates[count][1][1]=coordinates[1][1];
+                                count++;
 				BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
 						coordinates[1][0]+1, binarized_image.getType());
-
+			
 				GetPureSubImage(character_image,i,j,coordinates);
 
 				char CurrentCharacter;

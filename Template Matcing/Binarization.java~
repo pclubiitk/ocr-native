@@ -15,7 +15,7 @@ public class Binarization {
    
 	grayscale = toGray(original);
         binarized = binarize(grayscale);
-	//noiseremove(binarized);
+	noiseremove(binarized);
 	try {
         writeImage("binarized");
         }

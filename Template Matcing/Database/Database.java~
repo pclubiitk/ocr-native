@@ -65,7 +65,7 @@ public class Database {
 	}
 	public static int find_height(BufferedImage Image,int[][] coordinates,int high)
 	{
-		int min=high;
+		int min=coordinates[1][0];
 		for(int i=coordinates[0][0];i<=coordinates[0][1];i++)
 		{
 			int j;
@@ -74,7 +74,7 @@ public class Database {
 				if(new Color(Image.getRGB(i, j)).getRed() == 0)
 					break;
 			}
-			if(j > min)
+			if(j < min)
 				min=j;
 		}
 		return coordinates[1][0]-min;
@@ -150,7 +150,7 @@ public class Database {
 					character_image=ImageLib.resize(character_image);
 					writeImage(character_image,Integer.toString(name));
 
-		String charac="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$^&*()-+\\{}[]?/<>.....................";
+		String charac="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		System.out.print(charac.charAt(name-1)+"\n");
 		
 		for(int p=0;p<15;p++)

@@ -25,33 +25,15 @@ import java.io.FileOutputStream;
 import java.lang.String;
 public class GetVector {
 	private static BufferedImage binarized_image;     
-	private static int database_size=63;
-	private static String database_file = "database.txt";
-	private static String special_database_file = "special_database.txt";	
-	private static int special_database_size=4;	
-
+	private static int database_size=124;
 	private static int name=1;  
 	private static Map<String, Integer> dictionary = new HashMap<String, Integer>();
 	private static PrintStream original = new PrintStream(System.out);                                       
 	private static int[][][] database = new int[database_size][15][15];
-
-	private static int[][][] special_database = new int[special_database_size][15][15];
-
+	private static String[] Colors = new String[database_size];
 	private static String[] characters = new String[database_size];
-
-	private static String[] special_characters = new String[special_database_size];
-
 	public static void main(String[] args) throws IOException {
-		ReadDatabase(database,characters,database_file);
-		
-		ReadDatabase(special_database,special_characters,special_database_file);
-
-		//test
-
-		for(int i=0 ; i<special_database_size; i++)
-			//System.out.println(special_characters[i]);
-//
-
+		ReadDatabase(database,characters,Colors);
 		dictionary_reader();
 		String FileName = args[0];
 		File FilePointer = new File(FileName);                                     
@@ -80,12 +62,12 @@ public class GetVector {
 
 		}
 	}
-	public static int ReadDatabase(int[][][] value,String[] c,String file_name)
+	public static int ReadDatabase(int[][][] value,String[] c,String[] col)
 	{
 		int i=0,k=0;
 		String str;			
 		Scanner scan;
-		File file = new File(file_name);
+		File file = new File("database.txt");
 		try {
 			scan = new Scanner(file);
 			while(scan.hasNext())
@@ -112,32 +94,21 @@ public class GetVector {
 	{
 		int Height=binarized_image.getHeight();
 		int Width =binarized_image.getWidth();
-		int low=0,high=0;
-
-		String[] Text=new String[100];
-		String[] special_text=new String[100];
-		int[][][] text_coordinates = new int[100][2][2];
-		int[][][] special_text_coordinates = new int[100][2][2];
-
 		int[] BlackFreq=new int[Height];
 		int[][] Visited= new int[Height][Width];
 		for(int i=0; i<Height;i++)
 			for(int j=0; j<Width;j++)
 				Visited[i][j]=0;
 		ImageLib.FrequencyOfBlack(binarized_image,BlackFreq);
-		
+		String[] Text=new String[100];
 		for(int i=0 ; i<100; i++)
-		{
-			Text[i]="";special_text[i]="";
-
-		}
+			Text[i]="";
 		int LineNo=0;
 		for(int i=0; i<Height; i++)
 		{
 			if(BlackFreq[i]!=0)
 			{
 				int MaxIndex=i;
-				low=i;
 				int upper_limit=i;
 				while(BlackFreq[i]!=0)
 				{
@@ -147,20 +118,13 @@ public class GetVector {
 					if(i>=Height)
 						break;
 				}
-				high=i-1;
 				//MaxIndex=(MaxIndex+i)/2;
 
-				Text[LineNo]=GetOneLine(MaxIndex,Visited,upper_limit,text_coordinates);
-			//	original.println(Text[LineNo]);	
-				String special_char="";
-				special_char=GetOneLine_sp(low,high,Visited,special_text_coordinates);
-				Text[LineNo]=merge.combine(Text[LineNo],special_char,text_coordinates,special_text_coordinates,original);
-			//	original.println(Text[LineNo]);
-				//	original.println(special_char);
+				Text[LineNo]=GetOneLine(binarized_image,Text[LineNo],MaxIndex,Visited,upper_limit);
 				LineNo++;
 			}
 		}
-		for(int i=0; i<0; i++)
+		for(int i=0; i<LineNo; i++)
 		{
 			String current_line=Text[i];
 			String[] parts=current_line.split(" ");
@@ -172,22 +136,18 @@ public class GetVector {
 		}
 		return 0;
 	}
-	public static int find_height(int[][] Coordinates,int high,int[][] Visited)
+	public static int find_height(BufferedImage Image,int[][] Coordinates,int high)
 	{
-		int min=Coordinates[1][0];
+		int min=high;
 		for(int i=Coordinates[0][0];i<=Coordinates[0][1];i++)
 		{
 			int j;
 			for(j=high;j<Coordinates[1][0];j++)
 			{
-				if(new Color(binarized_image.getRGB(i, j)).getRed() == 0&& Visited[j][i]==0)
-				{
-					int[][] trash=new int[2][2];
-					ImageLib.GetFrame(binarized_image,trash,Visited,j,i);
+				if(new Color(Image.getRGB(i, j)).getRed() == 0)
 					break;
-				}
 			}
-			if(j < min)
+			if(j > min)
 				min=j;
 		}
 		return Coordinates[1][0]-min;
@@ -217,94 +177,85 @@ public class GetVector {
 
 		return character_image;
 	}
-	public static String GetOneLine(int Index,int[][] Visited,int upper_limit,int[][][] text_coordinates)
+	public static String GetOneLine(BufferedImage Image,String CurrentLine,int Index,int[][] Visited,int upper_limit)
 	{
 
-		String current_line="";
-		int Height=binarized_image.getHeight();
-		int Width =binarized_image.getWidth();		
+
+		int Height=Image.getHeight();
+		int Width =Image.getWidth();		
 		int[][] coordinates=new int[2][2];
-		int count=0;
+		int[] Difference=new int[100];
+		int NoOfFrames=0,ArraySize=0;
+		int XMinCurrent=0,XMaxLast=0;
+
 		for(int j=0; j<Width; j++)
 		{
 			int Pixel=binarized_image.getRGB(j,Index);
 			int Red=new Color(Pixel).getRed();
+
 
 			if((Red==0) && (Visited[Index][j]==0))
 			{
 
 				coordinates[0][0]=10000000;coordinates[0][1]=-10000000;
 				coordinates[1][0]=10000000;coordinates[1][1]=-10000000;
-				ImageLib.GetFrame(binarized_image,coordinates,Visited,Index,j);
-				text_coordinates[count][0][0]=coordinates[0][0];text_coordinates[count][0][1]=coordinates[0][1];
-				text_coordinates[count][1][0]=coordinates[1][0];text_coordinates[count][1][1]=coordinates[1][1];
-				count++;
-				int extra_height=find_height(coordinates,upper_limit,Visited);
+				int Error=ImageLib.GetFrame(Image,coordinates,Visited,Index,j,0);
 
-
-				BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
-						coordinates[1][0]+1, binarized_image.getType());
-
-				GetPureSubImage(character_image,Index,j,coordinates);
-
-				character_image=add_extra(character_image,coordinates,extra_height);
-
-				char CurrentCharacter;
-
-				CurrentCharacter=characters[CharFeatures.recognize(character_image,database,characters,database_size,name)].charAt(0);
-
-				current_line=current_line+CurrentCharacter;
-				writeImage(character_image,Integer.toString(name));
-				name++;
-			}
-		}
-		return current_line;
-	}
-	public static String GetOneLine_sp(int low,int high,int[][] Visited,int[][][] text_coordinates)
-	{
-		String current_line="";
-		int Height=binarized_image.getHeight();
-		int Width =binarized_image.getWidth();		
-		int[][] coordinates=new int[2][2];
-		int count=0;
-		for(int i=low; i<=high; i++) {
-		for(int j=0; j<Width; j++) {
-			int Pixel=binarized_image.getRGB(j,i);
-			int Red=new Color(Pixel).getRed();
-
-			if((Red==0) && (Visited[i][j]==0))
-			{
-
-				coordinates[0][0]=10000000;coordinates[0][1]=-10000000;
-				coordinates[1][0]=10000000;coordinates[1][1]=-10000000;
-				ImageLib.GetFrame(binarized_image,coordinates,Visited,i,j);
-				//original.println((coordinates[0][0]-coordinates[0][1])+"  "+(coordinates[1][0]-coordinates[1][1])+"  ");		
+				int extra_height=find_height(Image,coordinates,upper_limit);
 				
-				text_coordinates[count][0][0]=coordinates[0][0];text_coordinates[count][0][1]=coordinates[0][1];
-                                text_coordinates[count][1][0]=coordinates[1][0];text_coordinates[count][1][1]=coordinates[1][1];
-                                count++;
-				BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
-						coordinates[1][0]+1, binarized_image.getType());
-			
-				GetPureSubImage(character_image,i,j,coordinates);
 
-				char CurrentCharacter;
-
-				CurrentCharacter=special_characters[CharFeatures.recognize(character_image,special_database,special_characters,special_database_size,name)].charAt(0);
-
-				if(i<(low+high)/2)
+				if(Error==0)                                                  //No error in GetFrame
 				{
-					if(CurrentCharacter==',')
-						CurrentCharacter='\'';
+					if(NoOfFrames==0)
+						XMaxLast=coordinates[0][1];
+
+					if(NoOfFrames>0)
+					{
+						XMinCurrent=coordinates[0][0];
+						int Spacing=XMinCurrent-XMaxLast;
+						Difference[ArraySize]=Spacing;
+						ArraySize++;
+						XMaxLast=coordinates[0][1];
+					}
+
+					BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-coordinates[1][0]+1, binarized_image.getType());
+					GetPureSubImage(character_image,Index,j,coordinates);
+
+					character_image=add_extra(character_image,coordinates,extra_height);
+
+					char CurrentCharacter;
+
+					CurrentCharacter=characters[CharFeatures.recognize(character_image,database,characters,database_size,name)].charAt(0);
+					CurrentLine=CurrentLine+CurrentCharacter;
+					writeImage(character_image,Integer.toString(name));
+					name++;
+					NoOfFrames++;
 				}
-				current_line=current_line+CurrentCharacter;
-				writeImage(character_image,Integer.toString(name));
-				name++;
 			}
 		}
+		int[] Spacing=new int[ArraySize];
+		for(int i=0; i<ArraySize; i++)
+			Spacing[i]=Difference[i];
+
+		//for(int i=0; i<ArraySize; i++)
+		//	original.print(Spacing[i]+" ");
+
+		int threshold=Statistics.Threshold(Spacing);
+		int index=1;
+		for(int i=0; i<Spacing.length; i++)
+		{
+			if(Spacing[i]>threshold)
+			{
+				CurrentLine=CurrentLine.substring(0,index)+" "+CurrentLine.substring(index,CurrentLine.length());
+				index++;
+			}
+			index++;
 		}
-		return current_line;
+		//original.println(CurrentLine);
+		return CurrentLine;
+
 	}
+
 	public static int GetPureSubImage(BufferedImage image,int Row,int Column,int[][] coordinates)
 	{
 		for(int x=coordinates[0][0]; x<=coordinates[0][1]; x++)

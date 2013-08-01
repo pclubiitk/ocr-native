@@ -24,7 +24,7 @@ public class ImageLib {
 	private static int IMG_WIDTH = 15;
 	private static int IMG_HEIGHT = 15;
 
-	public static int FrequencyOfBlack(BufferedImage image,int[] Black)
+	public static void FrequencyOfBlack(BufferedImage image,int[] Black)
 	{
 		int Height=image.getHeight();
 		int Width=image.getWidth();
@@ -36,15 +36,74 @@ public class ImageLib {
 				int Pixel= image.getRGB(j,i);
 				int Red= new Color(Pixel).getRed();
 				if(Red==0)	
-					Black[i]+=1;
+					Black[i]++;
 			}
 		}
-		return 1;
+	}
+	public static void FrequencyOfBlack_vertical(BufferedImage image,int low,int high,int[] Black_vertical)
+	{
+		int k,l,count;
+		for(k=0;k<image.getWidth();k++)
+		{
+			Black_vertical[k]=0;
+			for(l=low;l<=high;l++)
+			{
+				int Pixel= image.getRGB(k,l);
+				int Red= new Color(Pixel).getRed();
+				if(Red==0)	
+					Black_vertical[k]++;
+			}
+		}
+	
+	}
+	public static boolean allblack(BufferedImage image,int[][] coordinates)	
+	{
+		int k,l,count;
+		for(k=coordinates[0][0];k<coordinates[0][1];k++)
+		{
+			for(l=coordinates[1][0];l<=coordinates[1][1];l++)
+			{
+				int Pixel= image.getRGB(k,l);
+				int Red= new Color(Pixel).getRed();
+				if(Red!=0)	
+					return false;
+			}
+		}
+		return true;
 	}
 
-	public static void GetFrame(BufferedImage Image,int[][] Coordinates,int[][] Visited,int Row,int Column)
+	public static void GetFrame(BufferedImage Image,int[][] Coordinates,int low,int high)
 	{
-
+		int i,j,count;
+		for(i=low;i<=high;i++)
+		{
+			count=0;
+			for(j=Coordinates[0][0];j<=Coordinates[0][1];j++)
+			{
+				int Pixel= Image.getRGB(j,i);
+				int Red= new Color(Pixel).getRed();
+				if(Red == 0)
+					count++;
+			}
+			if(count > 0)
+			 break;
+		}
+		Coordinates[1][0] = i;
+		for(i=high;i>=low;i--)
+		{
+			count=0;
+			for(j=Coordinates[0][0];j<=Coordinates[0][1];j++)
+			{
+				int Pixel= Image.getRGB(j,i);
+				int Red= new Color(Pixel).getRed();
+				if(Red == 0)
+					count++;
+			}
+			if(count > 0)
+			 break;
+		}
+		Coordinates[1][1] = i;		
+/*
 		if(Row<0||Row>=Image.getHeight())
 			return;
 		if(Column<0||Column>=Image.getWidth())
@@ -73,6 +132,7 @@ public class ImageLib {
 			GetFrame(Image,Coordinates,Visited,Row,Column-1);
 			GetFrame(Image,Coordinates,Visited,Row-1,Column-1);
 		}
+*/
 	}
 
 	public static BufferedImage resize(BufferedImage originalImage) {

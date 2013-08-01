@@ -49,7 +49,7 @@ public class ImageLib {
 			Black_vertical[k]=0;
 			for(l=low;l<=high;l++)
 			{
-				int Pixel= image.getRGB(k,l);
+				int Pixel= image.getRGB(j,i);
 				int Red= new Color(Pixel).getRed();
 				if(Red==0)	
 					Black_vertical[k]++;

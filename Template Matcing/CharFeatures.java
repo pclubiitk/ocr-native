@@ -67,7 +67,7 @@ public class CharFeatures {
 
 		}
 
-		try {
+		/*try {
 		PrintStream out = new PrintStream(new FileOutputStream(Integer.toString(name)+".txt"));
                 System.setOut(out);
 		for(int p=0;p<15;p++)
@@ -92,7 +92,7 @@ public class CharFeatures {
 		for(int x=0; x<5;x++)
 			System.out.println(Characters[best5char[x]].charAt(0)+"\t"+best5dev[x]);
 		CurrentChar=Characters[index].charAt(0);
-                System.out.println("Matched With :  "+CurrentChar+"\t"+min);
+                System.out.println("Matched With :  "+CurrentChar+"\t"+min);*/
 		return index;
 	}
 }

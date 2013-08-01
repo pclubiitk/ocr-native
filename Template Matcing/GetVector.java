@@ -254,7 +254,7 @@ public class GetVector {
 				CurrentCharacter=characters[CharFeatures.recognize(character_image,database,characters,database_size,name)].charAt(0);
 
 				current_line=current_line+CurrentCharacter;
-				writeImage(character_image,Integer.toString(name));
+				//writeImage(character_image,Integer.toString(name));
 				name++;
 			}
 		}

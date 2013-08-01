@@ -24,7 +24,7 @@ public class ImageLib {
 	private static int IMG_WIDTH = 15;
 	private static int IMG_HEIGHT = 15;
 
-	public static int FrequencyOfBlack(BufferedImage image,int[] Black)
+	public static void FrequencyOfBlack(BufferedImage image,int[] Black)
 	{
 		int Height=image.getHeight();
 		int Width=image.getWidth();
@@ -36,10 +36,9 @@ public class ImageLib {
 				int Pixel= image.getRGB(j,i);
 				int Red= new Color(Pixel).getRed();
 				if(Red==0)	
-					Black[i]+=1;
+					Black[i]++;
 			}
 		}
-		return 1;
 	}
 	public static void FrequencyOfBlack_vertical(BufferedImage image,int low,int high,int[] Black_vertical)
 	{
@@ -56,6 +55,21 @@ public class ImageLib {
 			}
 		}
 	
+	}
+	public static int allblack(BufferedImage image,int[][] coordinates)	
+	{
+		int k,l,count;
+		for(k=coordinates[0][0];k<coordinates[0][1];k++)
+		{
+			for(l=coordinates[1][0];l<=coordinates[1][1];l++)
+			{
+				int Pixel= image.getRGB(k,l);
+				int Red= new Color(Pixel).getRed();
+				if(Red!=0)	
+					return 0;
+			}
+		}
+		return 1;
 	}
 
 	public static void GetFrame(BufferedImage Image,int[][] Coordinates,int low,int high)

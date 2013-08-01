@@ -34,19 +34,37 @@ public class Database {
 	{
 		int Height=binarized_image.getHeight();
 		int Width =binarized_image.getWidth();
+		int low=0,high=0,count=0;
+		String charac="0123456789+-*/^=><&|.(){}[]..";
+
+		String current_line;
+		String[] Text=new String[100];
+		String[] special_text=new String[100];
+		int[][] coordinates = new int[2][2];
+		int[][][] text_coordinates = new int[100][2][2];
+		int[][][] special_text_coordinates = new int[100][2][2];
+
 		int[] BlackFreq=new int[Height];
+		int[] Black_vertical=new int[Width];
 		int[][] Visited= new int[Height][Width];
 		for(int i=0; i<Height;i++)
 			for(int j=0; j<Width;j++)
 				Visited[i][j]=0;
 		ImageLib.FrequencyOfBlack(binarized_image,BlackFreq);
-		String[] Text=new String[100];
+		
+		for(int i=0 ; i<100; i++)
+		{
+			Text[i]="";special_text[i]="";
+
+		}
 		int LineNo=0;
 		for(int i=0; i<Height; i++)
 		{
 			if(BlackFreq[i]!=0)
 			{
 				int MaxIndex=i;
+				low=i;
+				count=0;
 				int upper_limit=i;
 				while(BlackFreq[i]!=0)
 				{
@@ -56,14 +74,69 @@ public class Database {
 					if(i>=Height)
 						break;
 				}
-				
-				GetOneLine(binarized_image,MaxIndex,Visited,upper_limit);
+				high=i-1;
+				//System.out.println(high+" "+low);
+				//MaxIndex=(MaxIndex+i)/2;
+
+			//	Text[LineNo]=GetOneLine(MaxIndex,Visited,upper_limit,text_coordinates);
+			
+			//	String special_char="";
+			//	special_char=GetOneLine_sp(low,high,Visited,special_text_coordinates);
+			//	Text[LineNo]=merge.combine(Text[LineNo],special_char,text_coordinates,special_text_coordinates,original);
+				int left=0,right=0;	
+				ImageLib.FrequencyOfBlack_vertical(binarized_image,low,high,Black_vertical);
+				current_line="";
+				for(int k=0;k<Width;k++)
+				{
+					//System.out.println(Black_vertical[k]);	
+					if(Black_vertical[k] != 0)
+					{
+						left = k;	
+						while(Black_vertical[k] != 0)
+							k++;
+						right = k-1;
+					
+					coordinates[0][0] = left;
+					coordinates[0][1] = right;
+					//System.out.println(coordinates[0][1]);
+					ImageLib.GetFrame(binarized_image,coordinates,low,high);
+					text_coordinates[count][0][0]=coordinates[0][0];text_coordinates[count][0][1]=coordinates[0][1];
+					text_coordinates[count][1][0]=coordinates[1][0];text_coordinates[count][1][1]=coordinates[1][1];
+					count++;
+					BufferedImage character_image = new BufferedImage(coordinates[0][1]-coordinates[0][0]+1, coordinates[1][1]-
+						coordinates[1][0]+1, binarized_image.getType());
+					for(int x=coordinates[0][0]; x<=coordinates[0][1]; x++)
+					{
+						for(int y=coordinates[1][0]; y<=coordinates[1][1]; y++)
+						{
+							int newpixel=binarized_image.getRGB(x,y);
+							character_image.setRGB(x-coordinates[0][0],y-coordinates[1][0],newpixel);
+						}
+					}
+					character_image=ImageLib.resize(character_image);
+					writeImage(character_image,Integer.toString(name));
+					System.out.print(charac.charAt(name-1)+"\n");
+					name++;
+					for(int p=0;p<15;p++)
+					{		
+						for(int q=0;q<15;q++)	
+						{		
+							if((new Color(character_image.getRGB(q,p)).getRed())==0)				
+								System.out.print("0");
+							else
+							System.out.print("1");
+
+						}
+						System.out.println("\n");
+					}
+					}
+				}
 				LineNo++;
 			}
 		}
 		return 0;
 	}
-	public static int find_height(BufferedImage Image,int[][] coordinates,int high)
+	/*public static int find_height(BufferedImage Image,int[][] coordinates,int high)
 	{
 		int min=coordinates[1][0];
 		for(int i=coordinates[0][0];i<=coordinates[0][1];i++)
@@ -213,6 +286,7 @@ public class Database {
 
 		return 0;
 	}
+	*/
 	
 	private static void writeImage(BufferedImage image,String output) {
 		File file = new File(output+".bmp");

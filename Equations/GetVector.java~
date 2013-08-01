@@ -187,7 +187,7 @@ public class GetVector {
 							}
 						}
 						character_image=ImageLib.resize(character_image);
-						//writeImage(character_image,Integer.toString(name));
+						writeImage(character_image,Integer.toString(name));
 						char CurrentCharacter;
 						CurrentCharacter=characters[CharFeatures.recognize(character_image,database,characters,database_size,name)].charAt(0);
 						if(ImageLib.allblack(binarized_image,coordinates))
